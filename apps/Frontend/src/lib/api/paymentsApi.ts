@@ -11,26 +11,31 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  * @returns {Promise<Object>} - API response.
  */
 export const makePayment = async (
-    { orderId, paymentMethod, amount, transactionId }: { orderId: string; paymentMethod: string; amount: number; transactionId: string },
-    token: string
+	{
+		orderId,
+		paymentMethod,
+		amount,
+		transactionId
+	}: { orderId: string; paymentMethod: string; amount: number; transactionId: string },
+	token: string
 ) => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/payments/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ orderId, paymentMethod, amount, transactionId }),
-        });
+	try {
+		const response = await fetch(`${API_BASE_URL}/payments/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ orderId, paymentMethod, amount, transactionId })
+		});
 
-        if (!response.ok) {
-            throw new Error(`Payment failed: ${response.statusText}`);
-        }
+		if (!response.ok) {
+			throw new Error(`Payment failed: ${response.statusText}`);
+		}
 
-        return await response.json();
-    } catch (error) {
-        console.error('Error during payment:', error);
-        throw error;
-    }
+		return await response.json();
+	} catch (error) {
+		console.error('Error during payment:', error);
+		throw error;
+	}
 };

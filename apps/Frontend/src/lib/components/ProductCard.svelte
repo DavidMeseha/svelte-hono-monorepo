@@ -107,7 +107,7 @@
 				disabled={isAddingToCart}
 				aria-label={isAddingToCart ? 'Adding to cart...' : 'Add to cart'}
 			>
-				<div class="w-6 h-6 flex items-center justify-center me-2.5">
+				<div class="me-2.5 flex h-6 w-6 items-center justify-center">
 					<ShoppingCart size={18} aria-hidden="true" />
 				</div>
 				<span class="inline-block text-nowrap transition-all duration-200 ease-in-out">

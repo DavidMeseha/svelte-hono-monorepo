@@ -1,3 +1,3 @@
-import { Context } from "hono";
+import { Context } from 'hono';
 
 export async function getUserDetails(c: Context) {}

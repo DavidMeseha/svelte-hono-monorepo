@@ -195,7 +195,9 @@
 										{#each ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered'] as step, index}
 											<div class="text-center">
 												<div
-													class="mx-auto h-4 w-4 rounded-full border-2 {statuses.indexOf(order.status) >= index
+													class="mx-auto h-4 w-4 rounded-full border-2 {statuses.indexOf(
+														order.status
+													) >= index
 														? 'border-green-500 bg-green-500'
 														: 'border-gray-300 bg-white'}"
 												/>
@@ -219,7 +221,9 @@
 										<p class="mt-1 text-sm text-gray-500">{item.product.description}</p>
 										<div class="mt-2 flex items-center justify-between">
 											<div class="text-sm text-gray-500">Quantity: {item.quantity}</div>
-											<div class="text-sm font-medium text-gray-900">${item.subtotal.toFixed(2)}</div>
+											<div class="text-sm font-medium text-gray-900">
+												${item.subtotal.toFixed(2)}
+											</div>
 										</div>
 									</div>
 								</div>

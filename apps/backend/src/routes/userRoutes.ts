@@ -1,8 +1,8 @@
-import { Hono } from "hono";
-import { getUserDetails } from "../controllers/userController.js";
+import { Hono } from 'hono';
+import { getUserDetails } from '../controllers/userController.js';
 
 const productsRouter = new Hono();
 
-productsRouter.get("/", getUserDetails);
+productsRouter.get('/', getUserDetails);
 
 export { productsRouter };

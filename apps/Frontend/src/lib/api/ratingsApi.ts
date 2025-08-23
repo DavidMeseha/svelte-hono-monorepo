@@ -9,33 +9,31 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
  * @returns {Promise<Object>} - API response containing the created rating and updated product stats.
  */
 export const createRating = async (
-    productId: string,
-    rating: number,
-    comments: string,
-    token: string
+	productId: string,
+	rating: number,
+	comments: string,
+	token: string
 ): Promise<any> => {
-    try {
-        const response = await fetch(`${API_BASE_URL}/ratings/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ rating, comments }),
-        });
+	try {
+		const response = await fetch(`${API_BASE_URL}/ratings/${productId}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ rating, comments })
+		});
 
-        // Handle non-OK responses with detailed error information
-        if (!response.ok) {
-            const errorResponse = await response.json();
-            console.error('Server Error:', errorResponse);
-            throw new Error(
-                `Failed to create rating: ${errorResponse.message || response.statusText}`
-            );
-        }
+		// Handle non-OK responses with detailed error information
+		if (!response.ok) {
+			const errorResponse = await response.json();
+			console.error('Server Error:', errorResponse);
+			throw new Error(`Failed to create rating: ${errorResponse.message || response.statusText}`);
+		}
 
-        return await response.json();
-    } catch (error) {
-        console.error('Error creating rating:', error);
-        throw error;
-    }
+		return await response.json();
+	} catch (error) {
+		console.error('Error creating rating:', error);
+		throw error;
+	}
 };
