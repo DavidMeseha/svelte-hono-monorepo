@@ -1,0 +1,137 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  password  String    @db.VarChar(255)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  cartId    String?   @unique
+  addresses Address[]
+  cart      Cart?
+  orders    Order[]
+  Review    Review[]
+
+  @@map("users")
+}
+
+model Product {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  price        Decimal  @db.Decimal(10, 2)
+  stock        Int      @default(0)
+  image        String
+  seName       String   @unique @map("se_name")
+  avgRating    Int      @default(0) @map("avg_rating")
+  reviewsCount Int      @default(0) @map("reviews_count")
+  // category     Category  @relation(fields: [categoryId], references: [id])
+  // categoryId   String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  Review       Review[]
+
+  @@map("products")
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int
+  title     String?
+  comment   String?
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId])
+}
+
+model Cart {
+  id        String     @id @default(uuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now()) @map("created_at")
+  items     CartItem[]
+  user      User       @relation(fields: [userId], references: [id])
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String @id @default(uuid())
+  cartId    String
+  productId String
+  quantity  Int    @default(1)
+  cart      Cart   @relation(fields: [cartId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Category {
+  id     String @id @default(uuid())
+  name   String @unique
+  seName String @unique @map("se_name")
+  // Product Product[]
+
+  @@map("categories")
+}
+
+model Order {
+  id        String      @id @default(uuid())
+  userId    String
+  total     Decimal     @db.Decimal(10, 2)
+  status    OrderStatus @default(PENDING)
+  addressId String
+  createdAt DateTime    @default(now()) @map("created_at")
+  items     OrderItem[]
+  address   Address     @relation(fields: [addressId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
+  order     Order   @relation(fields: [orderId], references: [id])
+
+  @@map("order_items")
+}
+
+model Address {
+  id        String  @id @default(uuid())
+  userId    String
+  street    String
+  city      String
+  state     String
+  zipCode   String  @map("zip_code")
+  country   String
+  isDefault Boolean @default(false) @map("is_default")
+  user      User    @relation(fields: [userId], references: [id])
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
