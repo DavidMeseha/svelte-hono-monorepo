@@ -9,6 +9,7 @@
 	"dependencies": {
 		"@prisma/adapter-pg": "^6.13.0",
 		"@prisma/client": "6.13.0",
+		"@types/node": "^24.3.0",
 		"bcrypt": "^6.0.0",
 		"bun": "^1.2.20",
 		"hono": "^4.9.0",

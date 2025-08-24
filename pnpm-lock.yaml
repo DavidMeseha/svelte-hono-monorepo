@@ -75,6 +75,9 @@ importers:
       '@prisma/client':
         specifier: 6.13.0
         version: 6.13.0(prisma@6.13.0(typescript@5.9.2))(typescript@5.9.2)
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.0
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0

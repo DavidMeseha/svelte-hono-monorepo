@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "es2015",
     "strict": true,
     "skipLibCheck": true,
     "types": [
-      "bun"
+      "bun",
+      "node"
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
