@@ -19,9 +19,9 @@ app.use('*', logger());
 app.use('/images/*', serveStatic({ root: './public' }));
 
 app.get('/init', async (c) => {
-	const x = await createProduct(products[0]);
-	const y = await createProduct(products[1]);
-	return c.json({ products: [{ ...x }, { ...y }] });
+	const productx = await createProduct(products[0]);
+	const producty = await createProduct(products[1]);
+	return c.json({ products: [{ ...productx }, { ...producty }] });
 });
 
 app.route('/api', routes);
