@@ -2,24 +2,23 @@
 	"name": "backend",
 	"type": "module",
 	"scripts": {
-		"dev": "bun run --watch src/index.ts",
-		"start": "bun run dist/index.js",
-		"build": "bun run build.js"
+		"dev": "tsx watch src/index.ts",
+		"build": "tsup src/index.ts --format esm,cjs --dts",
+		"start": "node dist/index.js"
 	},
 	"dependencies": {
+		"@hono/node-server": "^1.19.0",
 		"@prisma/adapter-pg": "^6.13.0",
 		"@prisma/client": "6.13.0",
-		"@types/node": "^24.3.0",
 		"bcrypt": "^6.0.0",
-		"bun": "^1.2.20",
 		"hono": "^4.9.0",
 		"jose": "^6.0.12"
 	},
 	"devDependencies": {
 		"@types/bcryptjs": "^2.4.6",
-		"@types/bun": "^1.2.20",
+		"@types/node": "^24.3.0",
 		"prisma": "6.13.0",
-		"tsx": "^4.7.1",
+		"tsup": "^8.5.0",
 		"typescript": "^5.9.2"
 	}
 }
