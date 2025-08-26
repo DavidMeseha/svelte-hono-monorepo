@@ -1,7 +1,7 @@
 // httpStatusMap.ts
 
 export const HttpStatus = {
-	// 4xx Client Errors
+	// Client Errors
 	BadRequest: 400,
 	Unauthorized: 401,
 	Forbidden: 403,
@@ -13,7 +13,7 @@ export const HttpStatus = {
 	UnsupportedMediaType: 415,
 	TooManyRequests: 429,
 
-	// 5xx Server Errors
+	// Server Errors
 	InternalServerError: 500,
 	NotImplemented: 501,
 	BadGateway: 502,
