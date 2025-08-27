@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"build": "npx prisma generate && tsup src/index.ts --format esm,cjs --dts",
+		"build": "npx prisma generate && npx prisma migrate deploy && tsup src/index.ts --format esm,cjs --dts",
 		"start": "node dist/index.js"
 	},
 	"dependencies": {
