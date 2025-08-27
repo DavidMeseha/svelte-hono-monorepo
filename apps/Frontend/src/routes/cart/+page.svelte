@@ -424,7 +424,7 @@
 								bind:checked={newAddress.is_default}
 								class="rounded border-gray-300 text-blue-500 focus:ring focus:ring-blue-400"
 							/>
-							<label class="text-gray-700">Set as Default Address</label>
+							<label class="text-gray-700" for="">Set as Default Address</label>
 						</div>
 						<button
 							on:click={handleAddAddress}
