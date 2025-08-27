@@ -5,8 +5,8 @@ export async function getAllProducts(c: Context) {
 	const page = parseInt(c.req.query('page') || '1');
 	const limit = parseInt(c.req.query('limit') || '8');
 	const sort = c.req.query('sort');
-	const maxPrice = parseInt(c.req.query('maxPrice') || '0');
-	const minPrice = parseInt(c.req.query('minPrice') || '9999999');
+	const maxPrice = parseInt(c.req.query('maxPrice') || '9999999');
+	const minPrice = parseInt(c.req.query('minPrice') || '0');
 	const category = c.req.query('category');
 	const search = c.req.query('search') || '';
 

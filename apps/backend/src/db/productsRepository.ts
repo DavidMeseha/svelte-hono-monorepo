@@ -9,7 +9,7 @@ class ProductsRepository {
 		maxPrice: number;
 		minPrice: number;
 		category?: string;
-		search: string;
+		search?: string;
 	}) {
 		const where: Prisma.ProductWhereInput = {};
 		const orderBy: Prisma.ProductOrderByWithAggregationInput = {};
@@ -32,8 +32,7 @@ class ProductsRepository {
 			where: {
 				...where,
 				OR: [
-					{ name: { contains: queries.search, mode: 'insensitive' } },
-					{ description: { contains: queries.search, mode: 'insensitive' } }
+					{ name: { contains: queries.search ?? "", mode: 'insensitive' } },
 				]
 			},
 			orderBy
