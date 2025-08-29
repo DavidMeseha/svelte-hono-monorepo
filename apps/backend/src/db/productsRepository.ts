@@ -18,7 +18,7 @@ class ProductsRepository {
 		// }
 
 		if (queries.sort) {
-			const direction = queries.sort.includes('-') ? 'asc' : 'desc';
+			const direction = queries.sort.includes('-') ? 'desc' : 'asc';
 			const sort = queries.sort.replace('-', '') as 'name' | 'price';
 			orderBy[sort] = direction;
 		}
@@ -31,9 +31,7 @@ class ProductsRepository {
 			skip: queries.limit * (queries.page - 1),
 			where: {
 				...where,
-				OR: [
-					{ name: { contains: queries.search ?? "", mode: 'insensitive' } },
-				]
+				OR: [{ name: { contains: queries.search ?? '', mode: 'insensitive' } }]
 			},
 			orderBy
 		});

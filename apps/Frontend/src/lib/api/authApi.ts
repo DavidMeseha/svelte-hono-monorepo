@@ -18,7 +18,7 @@ export const register = async ({
 	password: string;
 }) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/auth/register`, {
+		const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -46,7 +46,7 @@ export const register = async ({
  */
 export const login = async ({ email, password }: { email: string; password: string }) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/auth/login`, {
+		const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -72,7 +72,7 @@ export const login = async ({ email, password }: { email: string; password: stri
  */
 export const logout = async (token: string) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+		const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -99,11 +99,10 @@ export const logout = async (token: string) => {
 export const verifyToken = async (token: string): Promise<boolean> => {
 	console.log('authAPI', token);
 	try {
-		const response = await fetch(`${API_BASE_URL}/auth/verify-token`, {
+		const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
 			method: 'GET',
 			headers: {
-				Authorization: `Bearer ${token}`,
-				'ngrok-skip-browser-warning': 'true'
+				Authorization: `Bearer ${token}`
 			}
 		});
 

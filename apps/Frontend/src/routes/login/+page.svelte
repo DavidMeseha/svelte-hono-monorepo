@@ -20,7 +20,7 @@
 
 		try {
 			const response = await login({ email, password });
-			localStorage.setItem('accessToken', response.data.accessToken); // Store tokens securely
+			localStorage.setItem('accessToken', response.accessToken); // Store tokens securely
 			authStore.login(); // Update the auth store state
 			goto('/'); // Redirect to home or dashboard
 		} catch (err) {

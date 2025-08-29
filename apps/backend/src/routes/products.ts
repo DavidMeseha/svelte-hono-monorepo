@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { getAllProducts, getProdutBySeName } from '../controllers/productsController.js';
+import { getAllProducts, getProdutBySeName } from '../controllers/products.js';
 
 const productsRouter = new Hono();
 

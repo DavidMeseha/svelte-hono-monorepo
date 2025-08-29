@@ -2,29 +2,29 @@
 
 export const HttpStatus = {
 	// Client Errors
-	BadRequest: 400,
-	Unauthorized: 401,
-	Forbidden: 403,
-	NotFound: 404,
-	MethodNotAllowed: 405,
-	RequestTimeout: 408,
-	Conflict: 409,
-	PayloadTooLarge: 413,
-	UnsupportedMediaType: 415,
-	TooManyRequests: 429,
+	BADREQUEST: 400,
+	UNAUTHORIZED: 401,
+	FORBIDDEN: 403,
+	NOTFOUND: 404,
+	METHODNOTALLOWED: 405,
+	REQUESTTIMEOUT: 408,
+	CONFLICT: 409,
+	PAYLOADTOOLARGE: 413,
+	UNSUPPORTEDMEDIATYPE: 415,
+	TOOMANYREQUESTS: 429,
 
 	// Server Errors
-	InternalServerError: 500,
-	NotImplemented: 501,
-	BadGateway: 502,
-	ServiceUnavailable: 503,
-	GatewayTimeout: 504,
+	INTERNALSERVERERROR: 500,
+	NOTIMPLEMENTED: 501,
+	BADGATEWAY: 502,
+	SERVICEUNAVAILABLE: 503,
+	GATEWAYTIMEOUT: 504,
 
 	// Common success codes
-	Ok: 200,
-	Created: 201,
-	Accepted: 202,
-	NoContent: 204
+	OK: 200,
+	CREATED: 201,
+	ACCEPTED: 202,
+	NOCONTENT: 204
 } as const;
 
 // Type for the keys

@@ -1,5 +1,6 @@
 import { Context } from 'hono';
 import productsRepository from '../db/productsRepository.js';
+import { HttpStatus } from '../http-statuses.js';
 
 export async function getAllProducts(c: Context) {
 	const page = parseInt(c.req.query('page') || '1');
@@ -19,7 +20,7 @@ export async function getAllProducts(c: Context) {
 		sort !== '-name' &&
 		sort !== '-price'
 	)
-		return c.json({ message: 'wrong sort input', success: false }, 400);
+		return c.json({ message: 'wrong sort input', success: false }, HttpStatus.BADREQUEST);
 
 	const resultProducts = await productsRepository.filterProducts({
 		page,
@@ -47,11 +48,12 @@ export async function getAllProducts(c: Context) {
 
 export async function getProdutBySeName(c: Context) {
 	const seName = c.req.param('seName');
-	if (!seName) return c.json({ message: 'seName missing', success: false }, 400);
+	if (!seName) return c.json({ message: 'seName missing', success: false }, HttpStatus.BADREQUEST);
 
 	const resultProduct = await productsRepository.bySeName(seName);
 
-	if (!resultProduct) return c.json({ message: 'product not found', success: false }, 404);
+	if (!resultProduct)
+		return c.json({ message: 'product not found', success: false }, HttpStatus.NOTFOUND);
 
 	return c.json({ product: resultProduct, success: true });
 }
