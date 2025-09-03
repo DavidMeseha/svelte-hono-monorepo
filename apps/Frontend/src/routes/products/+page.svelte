@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { fetchProducts } from '$lib/api/productsApi';
 	import ProductCard from '$lib/components/ProductCard.svelte';
-	import type { Product, ProductResponse, Category } from '$lib/types';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { sortOptions } from '$lib/constants';
+	import type { Product } from '$lib/types';
 	import { onMount } from 'svelte';
 
 	let products: Product[] = [];
@@ -18,26 +17,17 @@
 	// Search and filter state
 	let searchQuery = '';
 	let selectedCategory = '';
-	let priceRange = [0, 100000]; // Updated default max price
+	let priceRange = [0, 100000];
 	let sortBy = 'price';
 
-	// Sort options
-	const sortOptions = [
-		{ label: 'Price: Low to High', value: 'price' },
-		{ label: 'Price: High to Low', value: '-price' },
-		{ label: 'Name: A to Z', value: 'name' },
-		{ label: 'Name: Z to A', value: '-name' }
-	];
-
-	// Fetch products
-	const fetchProductData = async (page = 1) => {
+	const fetchProductsData = async (page = 1) => {
 		isLoading = true;
 		error = null;
 
 		try {
-			const result: ProductResponse = await fetchProducts({
+			const result = await fetchProducts({
 				page,
-				limit: 20, // Updated limit to 20
+				limit: 20,
 				sort: sortBy,
 				category: selectedCategory,
 				minPrice: priceRange[0],
@@ -57,27 +47,26 @@
 		}
 	};
 
-	// Initialize products on component mount
 	onMount(() => {
-		fetchProductData(1);
+		fetchProductsData(1);
 	});
 
 	// Pagination handlers
 	const goToNextPage = () => {
 		if (currentPage < totalPages) {
-			fetchProductData(currentPage + 1);
+			fetchProductsData(currentPage + 1);
 		}
 	};
 
 	const goToPrevPage = () => {
 		if (currentPage > 1) {
-			fetchProductData(currentPage - 1);
+			fetchProductsData(currentPage - 1);
 		}
 	};
 
 	// Apply filters
 	const applyFilters = () => {
-		fetchProductData(1);
+		fetchProductsData(1);
 	};
 </script>
 

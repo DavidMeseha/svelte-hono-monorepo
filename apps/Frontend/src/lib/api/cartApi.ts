@@ -1,3 +1,5 @@
+import type { CartItemsResponse, Product } from '$lib/types';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
@@ -11,9 +13,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 export const addToCart = async (
 	{ productId, quantity }: { productId: string; quantity: number },
 	token: string
-) => {
+): Promise<{ success: boolean; message: string }> => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/cart/add-item`, {
+		const response = await fetch(`${API_BASE_URL}/api/user/cart/items/add`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -26,7 +28,7 @@ export const addToCart = async (
 			throw new Error(`Failed to add item to cart: ${response.statusText}`);
 		}
 
-		return await response.json();
+		return response.json();
 	} catch (error) {
 		console.error('Error adding item to cart:', error);
 		throw error;
@@ -38,14 +40,11 @@ export const addToCart = async (
  * @param {string} token - Authorization token.
  * @returns {Promise<Object>} - API response containing cart details.
  */
-export const fetchCartItems = async (token: string) => {
+export const fetchCartItems = async (token: string): Promise<CartItemsResponse> => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/cart`, {
-			method: 'GET',
+		const response = await fetch(`${API_BASE_URL}/api/user/cart/items`, {
 			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
-				'ngrok-skip-browser-warning': 'true'
+				Authorization: `Bearer ${token}`
 			}
 		});
 
@@ -74,14 +73,12 @@ export const updateCartItem = async (
 ) => {
 	console.log(itemId, quantity);
 	try {
-		const response = await fetch(`${API_BASE_URL}/cart/update-item`, {
+		const response = await fetch(`${API_BASE_URL}/api/user/cart/items/update`, {
 			method: 'PUT',
 			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
-				'ngrok-skip-browser-warning': 'true'
+				Authorization: `Bearer ${token}`
 			},
-			body: JSON.stringify({ item_id: itemId, quantity })
+			body: JSON.stringify({ itemId: itemId, quantity })
 		});
 
 		if (!response.ok) {
@@ -105,15 +102,13 @@ export const deleteCartItem = async (itemId: string, token: string) => {
 	console.log(itemId, token);
 
 	try {
-		const response = await fetch(`${API_BASE_URL}/cart/remove-item/${itemId}`, {
+		const response = await fetch(`${API_BASE_URL}/api/user/cart/items/remove`, {
 			method: 'DELETE',
 			headers: {
-				Authorization: `Bearer ${token}`,
-				'ngrok-skip-browser-warning': 'true'
-			}
+				Authorization: `Bearer ${token}`
+			},
+			body: JSON.stringify({ itemId })
 		});
-
-		console.log(response);
 
 		if (!response.ok) {
 			const errorText = await response.text();
@@ -134,12 +129,10 @@ export const deleteCartItem = async (itemId: string, token: string) => {
  */
 export const clearCart = async (token: string) => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/cart`, {
+		const response = await fetch(`${API_BASE_URL}/api/user/cart`, {
 			method: 'DELETE',
 			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
-				'ngrok-skip-browser-warning': 'true'
+				Authorization: `Bearer ${token}`
 			}
 		});
 

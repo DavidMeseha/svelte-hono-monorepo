@@ -7,17 +7,22 @@ import { cors } from 'hono/cors';
 import { routes } from './routes/index.js';
 import { createProduct } from './db/createProduct.js';
 import { products } from './db/products-setup.js';
-import AppError from './libs/AppError.js';
+import AppError from './libs/app-error.js';
+import { HttpStatus } from './http-statuses.js';
 
 const app = new Hono();
 
 app.onError((err, c) => {
+	console.error('Error:', err);
 	if (err instanceof AppError) {
-		console.error('Error:', err);
+		// console.error('Error:', err);
 		return c.json({ message: err.message, success: false }, err.statusCode);
 	}
 
-	return c.json({ message: 'Internal Server Error', success: false }, 500);
+	return c.json(
+		{ message: 'Internal Server Error', success: false },
+		HttpStatus.INTERNALSERVERERROR
+	);
 });
 
 app.use(

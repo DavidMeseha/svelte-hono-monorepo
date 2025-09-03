@@ -1,4 +1,4 @@
-import type { ProductResponse, Product } from '../types';
+import type { ProductsResponse, Product } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -30,9 +30,8 @@ export const fetchProducts = async ({
 	minPrice?: number;
 	maxPrice?: number;
 	search?: string;
-}): Promise<ProductResponse> => {
+}): Promise<ProductsResponse> => {
 	try {
-		// Construct query parameters
 		const queryParams = new URLSearchParams({
 			page: page.toString(),
 			limit: limit.toString(),
@@ -44,21 +43,13 @@ export const fetchProducts = async ({
 		if (maxPrice !== undefined) queryParams.append('maxPrice', maxPrice.toString());
 		if (search) queryParams.append('search', search);
 
-		// Fetch data from the API
-		const response = await fetch(`${API_BASE_URL}/api/products?${queryParams.toString()}`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json'
-			}
-		});
+		const response = await fetch(`${API_BASE_URL}/api/products?${queryParams.toString()}`);
 
-		// Check for valid response
 		if (!response.ok) {
 			throw new Error(`Failed to fetch products: HTTP ${response.status}`);
 		}
 
-		// Parse and return JSON response
-		return (await response.json()) as ProductResponse;
+		return await response.json();
 	} catch (error) {
 		console.error('Error fetching products:', error);
 		throw error;
@@ -72,25 +63,16 @@ export const fetchProducts = async ({
  */
 export const fetchProductDetails = async (seName: string): Promise<Product> => {
 	try {
-		const response = await fetch(`${API_BASE_URL}/api/products/${seName}`, {
-			method: 'GET',
-			headers: {
-				Accept: 'application/json'
-			}
-		});
+		const response = await fetch(`${API_BASE_URL}/api/products/${seName}`);
 
-		// Check for valid response
 		if (!response.ok) {
 			throw new Error(`Failed to fetch product details: HTTP ${response.status}`);
 		}
 
-		// Parse and return JSON response
 		const data = await response.json();
-		if (!data.success) {
-			throw new Error('Product not found.');
-		}
+		if (!data.success) throw new Error('Product not found.');
 
-		return data.product as Product;
+		return data.product;
 	} catch (error) {
 		console.error('Error fetching product details:', error);
 		throw error;

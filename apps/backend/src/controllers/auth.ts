@@ -1,7 +1,7 @@
 import { Context } from 'hono';
 import usersRepository from '../db/usersRepository.js';
 import { HttpStatus } from '../http-statuses.js';
-import AppError from '../libs/AppError.js';
+import AppError from '../libs/app-error.js';
 import {
 	comparePassword,
 	generateAccessToken,
@@ -39,6 +39,10 @@ export async function login(c: Context) {
 	const accessToken = await generateAccessToken({ name: user.name || '', id: user.id });
 
 	return c.json({ success: true, accessToken }, HttpStatus.OK);
+}
+
+export async function logout(c: Context) {
+	return c.json({ success: true, message: 'User logged out' }, HttpStatus.OK);
 }
 
 export async function verify(c: Context) {

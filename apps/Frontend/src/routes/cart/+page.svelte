@@ -5,53 +5,33 @@
 	import { createOrder } from '$lib/api/ordersApi';
 	import { makePayment } from '$lib/api/paymentsApi';
 	import { fetchAddresses, createAddress } from '$lib/api/addressApi';
+	import type { Address, CartItem, Summary } from '$lib/types';
+	import ProductCartItem from '$lib/components/ProductCartItem.svelte';
 
-	interface Address {
-		_id: string;
-		address_line_1: string;
-		city: string;
-		state: string;
-		zipcode: string;
-		is_default: boolean;
-	}
-
-	let cart: {
-		items: Array<{
-			product: {
-				_id: string;
-				name: string;
-				description: string;
-				images: string[];
-				price: number;
-				stock_quantity: number;
-			};
-			quantity: number;
-			subtotal: number;
-			isAvailable: boolean;
-			_id: string;
-		}>;
-		summary: {
-			subtotal: number;
-			tax: number;
-			shipping: number;
-			total: number;
-			totalItems: number;
-		};
-	} | null = null;
+	let cart: Array<CartItem> = [];
+	let summary: Summary = {
+		subTotal: 0,
+		tax: 0,
+		shipping: 0,
+		total: 0,
+		totalItems: 0
+	};
 
 	// Address related state with proper typing
 	let addresses: Address[] = [];
 	let selectedAddressId = '';
-	let newAddress: Omit<Address, '_id'> = {
+	let newAddress: Omit<Address, 'id'> = {
 		address_line_1: '',
 		city: '',
 		zipcode: '',
 		state: '',
 		is_default: false
 	};
-	let isLoadingAddresses = true;
+	let isLoadingAddresses = false;
 
-	let isLoading = true;
+	let isInit = true;
+	let isLoadingSummary = false;
+	let isLoadingItems = false;
 	let error: string | null = null;
 	let showPaymentForm = false;
 	let orderId: string | null = null;
@@ -73,16 +53,17 @@
 			try {
 				const [cartResponse, addressResponse] = await Promise.all([
 					fetchCartItems(token),
-					fetchAddresses(token)
+					Promise.resolve({ data: [] })
 				]);
 
-				cart = cartResponse.cart;
+				cart = cartResponse.items;
+				summary = cartResponse.summary;
 				addresses = addressResponse.data;
-				selectedAddressId = addresses.find((address) => address.is_default)?._id || '';
+				selectedAddressId = addresses.find((address) => address.is_default)?.id || '';
 			} catch (err) {
 				error = err instanceof Error ? err.message : 'Failed to fetch cart items or addresses.';
 			} finally {
-				isLoading = false;
+				isInit = false;
 				isLoadingAddresses = false;
 			}
 		}
@@ -98,29 +79,30 @@
 		}
 
 		try {
-			isLoading = true;
+			isInit = true;
 			const response = await updateCartItem({ itemId, quantity: newQuantity }, token);
 
 			// Update the local cart with the new values
 			const updatedItem = response.updatedItem;
-			cart.items = cart.items.map((item) =>
-				item.product._id === itemId
+			cart = cart.map((item) =>
+				item.product.id === itemId
 					? { ...item, quantity: updatedItem.quantity, subtotal: updatedItem.subtotal }
 					: item
 			);
-			cart.summary = response.cartSummary; // Update the summary
+			cart = response.items;
+			summary = response.summary; // Update the summary
 		} catch (err) {
 			console.log(err);
 			alert('Failed to update the cart item.');
 		} finally {
-			isLoading = false;
+			isInit = false;
 		}
 	};
 
 	const handleDeleteItem = async (itemId: string) => {
 		if (!itemId || !cart) return;
 
-		isLoading = true;
+		isInit = true;
 		error = null;
 
 		try {
@@ -133,20 +115,20 @@
 			await deleteCartItem(itemId, token);
 
 			// Update the cart by removing the deleted item
-			cart.items = cart.items.filter((item) => item._id !== itemId);
-			cart.summary.totalItems = cart.items.reduce((total, item) => total + item.quantity, 0);
-			cart.summary.subtotal = cart.items.reduce((total, item) => total + item.subtotal, 0);
+			cart = cart.filter((item) => item.id !== itemId);
+			summary.totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+			summary.subTotal = cart.reduce((total, item) => total + item.product.price, 0);
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to delete cart item.';
 		} finally {
-			isLoading = false;
+			isInit = false;
 		}
 	};
 
 	const handleClearCart = async () => {
 		if (!cart) return;
 
-		isLoading = true;
+		isInit = true;
 		error = null;
 
 		try {
@@ -159,12 +141,12 @@
 			await clearCart(token);
 
 			// Clear the local cart
-			cart = null;
+			cart = [];
 			alert('Cart cleared successfully!');
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Failed to clear the cart.';
 		} finally {
-			isLoading = false;
+			isInit = false;
 		}
 	};
 
@@ -184,7 +166,7 @@
 
 			// Update the addresses state with the newly fetched list
 			addresses = updatedAddresses.data;
-			selectedAddressId = addresses.find((address) => address.is_default)?._id || '';
+			selectedAddressId = addresses.find((address) => address.is_default)?.id || '';
 
 			alert('Address added successfully!');
 
@@ -210,7 +192,7 @@
 			return;
 		}
 
-		isLoading = true;
+		isInit = true;
 		error = null;
 
 		try {
@@ -221,19 +203,19 @@
 
 			// Create an order with the selected address
 			const response = await createOrder(token, selectedAddressId);
-			orderId = response.order._id;
+			orderId = response.order.id;
 			showPaymentForm = true;
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Checkout failed.';
 		} finally {
-			isLoading = false;
+			isInit = false;
 		}
 	};
 
 	// Handle Payment Submission
 	const handlePayment = async () => {
 		if (!orderId) return;
-		isLoading = true;
+		isInit = true;
 		error = null;
 
 		try {
@@ -247,7 +229,7 @@
 				{
 					orderId,
 					paymentMethod: 'credit_card',
-					amount: cart?.summary.total || 0,
+					amount: summary.total || 0,
 					transactionId: `txn-${Date.now()}`
 				},
 				token
@@ -258,17 +240,15 @@
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Payment failed.';
 		} finally {
-			isLoading = false;
+			isInit = false;
 		}
 	};
 </script>
 
 <div class="min-h-screen bg-gray-100 p-6">
 	<!-- Loading State -->
-	{#if isLoading}
+	{#if isInit}
 		<div class="text-center text-gray-600">Loading your cart...</div>
-
-		<!-- Error State -->
 	{:else if error}
 		<div class="text-center text-red-500">{error}</div>
 		<p class="mt-4 text-center">
@@ -276,88 +256,12 @@
 		</p>
 
 		<!-- Cart Items -->
-	{:else if cart && cart.items.length > 0}
+	{:else if cart && cart.length > 0}
 		<h1 class="mb-6 text-center text-2xl font-semibold text-gray-800">Your Cart</h1>
 		<div class="grid gap-6 lg:grid-cols-3">
-			<!-- Cart Items List -->
 			<div class="space-y-6 lg:col-span-2">
-				{#each cart.items as item}
-					<div
-						class="flex items-center rounded-lg border border-gray-200 bg-white p-4 shadow-md hover:shadow-lg"
-					>
-						<!-- Product Image -->
-						<div class="flex-shrink-0">
-							{#if item.product.images.length > 0}
-								<img
-									src={item.product.images[0]}
-									alt={item.product.name}
-									class="h-24 w-24 rounded-lg object-cover"
-								/>
-							{:else}
-								<img
-									src="https://via.placeholder.com/300"
-									alt={item.product.name}
-									class="h-24 w-24 rounded-lg object-cover"
-								/>
-							{/if}
-						</div>
-
-						<!-- Product Details -->
-						<div class="ml-6 flex-grow">
-							<h2 class="text-lg font-semibold text-gray-800">{item.product.name}</h2>
-							<p class="mt-1 line-clamp-2 text-sm text-gray-600">
-								{item.product.description}
-							</p>
-							<p class="mt-2 text-sm text-gray-800">
-								<strong>Price:</strong> ${item.product.price.toFixed(2)}
-							</p>
-							<div class="mt-2 flex items-center space-x-4">
-								<!-- Quantity Input -->
-								<label for="quantity-{item.product._id}" class="text-sm font-medium text-gray-600">
-									Qty:
-								</label>
-								<input
-									id={`quantity-${item.product._id}`}
-									type="number"
-									class="w-16 rounded border border-gray-300 p-1 text-center shadow-sm focus:ring focus:ring-blue-200"
-									value={item.quantity}
-									min="1"
-									on:change={(e) =>
-										handleUpdateQuantity(
-											item.product._id,
-											parseInt((e.target as HTMLInputElement).value)
-										)}
-								/>
-							</div>
-							<p class="mt-2 text-sm text-gray-800">
-								<strong>Subtotal:</strong> ${item.subtotal.toFixed(2)}
-							</p>
-							{#if !item.isAvailable}
-								<p class="mt-2 text-sm text-red-500">This item is currently unavailable.</p>
-							{/if}
-						</div>
-
-						<!-- Delete Button -->
-						<div class="ml-6">
-							<button
-								on:click={() => handleDeleteItem(item._id)}
-								class="rounded-full bg-red-100 p-2 text-red-600 hover:bg-red-200 focus:outline-none focus:ring focus:ring-red-400"
-								title="Remove Item"
-								aria-label={`Remove ${item.product.name} from cart`}
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									class="h-5 w-5"
-									fill="none"
-									viewBox="0 0 24 24"
-									stroke="currentColor"
-									stroke-width="2"
-								>
-									<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-								</svg>
-							</button>
-						</div>
-					</div>
+				{#each cart as item}
+					<ProductCartItem {item} {handleDeleteItem} {handleUpdateQuantity} />
 				{/each}
 
 				<!-- Address Section -->
@@ -372,13 +276,13 @@
 								<div class="flex items-center space-x-4">
 									<input
 										type="radio"
-										id={address._id}
+										id={address.id}
 										name="address"
-										value={address._id}
+										value={address.id}
 										bind:group={selectedAddressId}
 										class="text-blue-500 focus:ring-blue-400"
 									/>
-									<label for={address._id} class="text-gray-700">
+									<label for={address.id} class="text-gray-700">
 										{address.address_line_1}, {address.city}, {address.state}
 										{address.zipcode}
 										{#if address.is_default}
@@ -442,24 +346,24 @@
 				<div class="space-y-2">
 					<div class="flex justify-between">
 						<span>Subtotal:</span>
-						<span>${cart.summary.subtotal.toFixed(2)}</span>
+						<span>${summary.subTotal}</span>
 					</div>
 					<div class="flex justify-between">
 						<span>Tax:</span>
-						<span>${cart.summary.tax.toFixed(2)}</span>
+						<span>${summary.tax}</span>
 					</div>
 					<div class="flex justify-between">
 						<span>Shipping:</span>
-						<span>${cart.summary.shipping.toFixed(2)}</span>
+						<span>${summary.shipping}</span>
 					</div>
 					<hr class="my-2" />
 					<div class="flex justify-between font-semibold">
 						<span>Total:</span>
-						<span>${cart.summary.total.toFixed(2)}</span>
+						<span>${summary.total}</span>
 					</div>
 					<div class="flex justify-between">
 						<span>Total Items:</span>
-						<span>{cart.summary.totalItems}</span>
+						<span>{summary.totalItems}</span>
 					</div>
 				</div>
 				<div class="mt-6 flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">

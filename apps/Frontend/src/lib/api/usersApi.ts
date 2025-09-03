@@ -1,34 +1,27 @@
-import type { UserResponse } from '../types';
+import type { UserDetailsResponse } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Fetch user details using the access token.
  * @param {string} token - The access token for authentication.
- * @returns {Promise<UserResponse>} - The response containing user details.
+ * @returns {Promise<UserDetailsResponse>} - The response containing user details.
  */
-export const fetchUserDetails = async (token: string): Promise<UserResponse> => {
+export const fetchUserDetails = async (token: string): Promise<UserDetailsResponse> => {
 	console.log(token);
 	try {
-		const response = await fetch(`${API_BASE_URL}/users`, {
-			method: 'GET',
+		const response = await fetch(`${API_BASE_URL}/api/user/details`, {
 			headers: {
-				Accept: 'application/json',
 				Authorization: `Bearer ${token}`
 			}
 		});
 
-		// Log the raw response if the status is not OK
 		if (!response.ok) {
-			const errorText = await response.text();
-			console.error('API Error Response:', errorText);
 			throw new Error(`Failed to fetch user details: HTTP ${response.status}`);
 		}
 
-		// Parse and return JSON response
-		return (await response.json()) as UserResponse;
+		return (await response.json()).user;
 	} catch (error) {
-		console.error('Error fetching user details:', error);
 		throw error;
 	}
 };

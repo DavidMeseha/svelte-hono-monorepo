@@ -21,8 +21,8 @@
 		try {
 			const response = await login({ email, password });
 			localStorage.setItem('accessToken', response.accessToken); // Store tokens securely
-			authStore.login(); // Update the auth store state
-			goto('/'); // Redirect to home or dashboard
+			authStore.login();
+			goto('/');
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'Login failed';
 		} finally {

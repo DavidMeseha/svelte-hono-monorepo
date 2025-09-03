@@ -1,3 +1,13 @@
+export interface PaginatedResponse<T> {
+	products: T[];
+	metadata: {
+		total: number;
+		page: number;
+		pages: number;
+	};
+	success: boolean;
+}
+
 export type Product = {
 	id: string;
 	name: string;
@@ -20,32 +30,48 @@ export type Product = {
 	totalRatings: number;
 };
 
-export type ProductResponse = {
-	products: Product[];
-	metadata: {
-		total: number;
-		page: number;
-		pages: number;
-	};
-	success: boolean;
+export type CartItem = {
+	cartId: string;
+	id: string;
+	product: Product;
+	productId: string;
+	quantity: number;
 };
+
+export type Summary = {
+	subTotal: number;
+	tax: number;
+	shipping: number;
+	total: number;
+	totalItems: number;
+};
+
+export type CartItemsResponse = {
+	success: boolean;
+	items: CartItem[];
+	summary: Summary;
+};
+
+export type ProductsResponse = PaginatedResponse<Product>;
 
 export type Category = {
 	_id: string;
 	name: string;
 };
 
-export type UserResponse = {
+export type UserDetailsResponse = {
 	id: string;
 	email: string;
 	name: string;
-	isLocked: boolean;
-	lastLogin: string | null;
-	isVerified: boolean;
-	role: string;
 	createdAt: string;
 	updatedAt: string;
-	refreshToken: string;
-	failedAttempts: number;
-	lockUntil: string | null;
 };
+
+export interface Address {
+	id: string;
+	address_line_1: string;
+	city: string;
+	state: string;
+	zipcode: string;
+	is_default: boolean;
+}

@@ -113,10 +113,10 @@ export const verifyToken = async (token: string): Promise<boolean> => {
 		}
 
 		if (response.status === 401) {
-			return false; // Token is expired
+			return false; // Token is expired or invalid
 		}
 
-		throw new Error(`Token verification failed: ${response.statusText}`);
+		return true;
 	} catch (error) {
 		console.error('Error during token verification:', error);
 		return false;

@@ -16,6 +16,12 @@ class UsersRepository {
 			where: { email }
 		});
 	}
+
+	async findById(id: string) {
+		return await db.user.findUnique({
+			where: { id }
+		});
+	}
 }
 
 const usersRepository = new UsersRepository();

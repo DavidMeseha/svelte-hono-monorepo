@@ -4,43 +4,23 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { authStore } from '$lib/stores/authStore';
-
-	let user: {
-		_id: string;
-		name: string;
-		email: string;
-		isLocked: boolean;
-		lastLogin: string | null;
-		isVerified: boolean;
-		role: string;
-		createdAt: string;
-		updatedAt: string;
-		refreshToken: string;
-		failedAttempts: number;
-		lockUntil: string | null;
-	} | null = null;
+	import type { UserResponse } from '$lib/types';
 
 	let isLoading = true;
 	let error: string | null = null;
+	let user: UserResponse | null = null;
 
 	onMount(async () => {
-		if (typeof window !== 'undefined') {
-			// Ensure we're in the browser
-			const token = localStorage.getItem('accessToken') || '';
+		const token = localStorage.getItem('accessToken') || '';
 
-			if (token) {
-				try {
-					// Fetch user details
-					const result = await fetchUserDetails(token);
-					user = result; // Adjusted to match the new response structure
-				} catch (err) {
-					error = err instanceof Error ? err.message : 'Failed to fetch user details.';
-				}
-			} else {
-				error = 'You are not logged in. Please log in to access your account and continue.';
+		if (token) {
+			try {
+				user = await fetchUserDetails(token);
+			} catch (err) {
+				error = err instanceof Error ? err.message : 'Failed to fetch user details.';
 			}
 		} else {
-			error = 'Cannot access localStorage during SSR.';
+			error = 'You are not logged in. Please log in to access your account and continue.';
 		}
 
 		isLoading = false;
@@ -52,10 +32,10 @@
 			const token = localStorage.getItem('accessToken');
 			if (token) {
 				try {
-					await logout(token); // Call the logout API
-					localStorage.removeItem('accessToken'); // Clear access token
-					authStore.logout(); // Update the auth store state
-					goto('/login'); // Redirect to login page
+					await logout(token);
+					localStorage.removeItem('accessToken');
+					authStore.logout();
+					goto('/login');
 				} catch (err) {
 					error = err instanceof Error ? err.message : 'Failed to logout.';
 				}
@@ -84,18 +64,6 @@
 			<p class="mb-2">
 				<strong>Email:</strong>
 				{user.email}
-			</p>
-			<p class="mb-2">
-				<strong>Last Login:</strong>
-				{user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}
-			</p>
-			<p class="mb-2">
-				<strong>Verified:</strong>
-				{user.isVerified ? 'Yes' : 'No'}
-			</p>
-			<p class="mb-2">
-				<strong>Role:</strong>
-				{user.role}
 			</p>
 
 			<!-- Logout Button -->
